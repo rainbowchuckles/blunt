@@ -9,11 +9,12 @@ from shape import *
 
 M_inf    = 20.0          # freestream Mach bnumber
 gamma    = 1.4           # ratio of specific heats
-tb       = 10            # cone half angle (degrees)
-p1       = 101325.0      # Pa
-T1       = 288.15        # K
-b        = 0.80          # self similar boundary layer parameter
+tb       = 15            # cone half angle (degrees)
+p1       = 137.9        # Pa
+T1       = 266.15        # K
+b        = 0.00          # self similar boundary layer parameter
 R_gas    = 287           # Gas constant (assume air)
+r0       = 0.15          # Nose radius (m)
 
 # shouldn't be any need to edit below this line
 # ---------------------------------------------
@@ -21,9 +22,10 @@ R_gas    = 287           # Gas constant (assume air)
 
 # Other freestream properties that we might need
 
-rho1 = p1/(R_gas*T1)
-a1   = (gamma*R_gas*T1)**0.5
-V1   = M_inf*a1
+rho1   = p1/(R_gas*T1)
+a1     = (gamma*R_gas*T1)**0.5
+V1     = M_inf*a1
+Re_inf = rho1*V1*r0/(sutherland_mu(T1)) 
 
 # Determine the conical shock angle (page 5)
 
@@ -50,23 +52,42 @@ y_bar = np.linspace(1e-6, ybar_c, 1000)   # avoid zero at 0 to keep gradient sta
 beta = shock_angle_from_y(y_bar, tb, cdt)
 
 # Work out the cone surface pressure
-cp = rasmussen(gamma, tb, M_inf) 
 
+cp = rasmussen(gamma, tb, M_inf) 
 q = 0.5*rho1*(V1**2)
 p_cone = q*cp + p1
 
-# Compute j(y_bar)
-j, Me = post_shock_oblique(M_inf, beta, p1, T1, p_cone)
+# Compute j(y_bar) by determining the post-shock conditions as a function of y_bar
+# and then expanding these to the inviscid cone surface pressure just calculated
 
-# Form integrand
-integrand = (y_bar**3) / j
-
-# Numerical integration
-I = cumtrapz(integrand, y_bar, initial=0)
+j, Me = edge(M_inf, beta, p1, T1, p_cone)
 
 # Get f(eta_e) from the self similar model 
 # self_similar(beta,g(0),tolf,tolg)
+
 f = self_similar(b,0.0)
+
+# Validation of j(y_bar) against Rubin paper
+
+j0 = 1
+r2  = Re_inf/j
+r2 *= (y_bar/2)**(2*j0 + 1)
+r2 *= 2*(j0 + 1)/(f**2)
+
+np.savetxt(
+    "rubin.txt",
+    np.column_stack((y_bar, r2/1000)),
+    header="y_bar r2",
+    comments=""
+    )
+# Form integrand
+
+integrand = (y_bar**3) / j
+
+# Numerical integration
+
+I = cumtrapz(integrand, y_bar, initial=0)
+
 
 # Now we have everything we need to evaluate S_bar/Re_inf
 

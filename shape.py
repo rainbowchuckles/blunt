@@ -24,7 +24,8 @@ def shock_angle_from_y(y_bar, theta_b, c_dt):
     np.column_stack((x, y, np.rad2deg(beta))),
     header="x y beta",
     comments="")
-    return np.abs(beta)
+    #return np.arctan(0.992*(c_dt**0.5)*((np.cos(theta_b)/y_bar)**1.174))
+    return beta
 
 
 # Determine the conical shock angle (page 5)

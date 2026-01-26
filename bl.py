@@ -13,7 +13,7 @@ def self_similar(beta,g_w):
     # we will allow the solver to integrate to. just needs to
     # be large enough that we reach steady state
 
-    eta_max = 1050.0
+    eta_max = 50.0
 
     # solver tolerance 
 
@@ -79,8 +79,13 @@ def self_similar(beta,g_w):
     
     y_edge = sol.y_events[0][0]
     eta_edge = sol.t_events[0][0]
-
-    # return f(eta_e) 
-
+    
+    # output solution to text
+    np.savetxt(
+        "bl.txt",
+        np.column_stack((sol.t, sol.y[0], sol.y[1], sol.y[2], sol.y[3], sol.y[4])),
+        header="eta f fp fpp g gp",
+        comments=""
+        )
     return y_edge[0]
 

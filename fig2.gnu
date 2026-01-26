@@ -1,5 +1,3 @@
-set terminal pngcairo size 600,600
-set output '/data/fig2.png'
 set xlabel 'Similarity parameter'
 set ylabel 'Me'
 set xrange[0:3.2]
