@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="cone.png" alt="Project Logo" width="200"/>
+  <img src="cone.png" alt="Project Logo" width="600"/>
 </p>
 
 
