@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="cone.png" alt="Project Logo" width="200"/>
+</p>
+
+
 Joseph Steer 28/01/2026
 
 This software was developed to solve equation 16 from: 
