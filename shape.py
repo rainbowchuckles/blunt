@@ -19,13 +19,9 @@ def shock_angle_from_y(y_bar, theta_b, c_dt):
     dx_dy = np.gradient(x, y)
     dydx = 1.0 / dx_dy
     beta = np.arctan(dydx)
-    np.savetxt(
-    "shock_shape.dat",
-    np.column_stack((x, y, np.rad2deg(beta))),
-    header="x y beta",
-    comments="")
-    #return np.arctan(0.992*(c_dt**0.5)*((np.cos(theta_b)/y_bar)**1.174))
-    return beta
+    
+    #return np.arctan(0.992*(c_dt**0.5)*((np.cos(theta_b)/y_bar)**1.174)), x
+    return beta,x
 
 
 # Determine the conical shock angle (page 5)
@@ -39,3 +35,13 @@ def conical_shock_angle(tb,M_inf):
     del_c  = np.arcsin(del_c) #in radians
 
     return del_c
+
+def surface(y_bar, theta):
+    dum = y_bar.copy()
+    dum[dum>1]=1
+    angle = np.arctan(dum)
+    angle = 90 - np.rad2deg(angle)
+    angle = np.deg2rad(angle)
+    angle[angle < theta] = theta
+
+    return angle 

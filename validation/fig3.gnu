@@ -1,5 +1,7 @@
 set xlabel 'Similarity parameter'
+set output '/data/fig3.png'
 set ylabel 'Me'
+set terminal pngcairo size 600,600
 set xrange[0:15]
 set yrange[0:12]
 set grid

@@ -1,16 +1,25 @@
 # oblique.py
 import numpy as np
 import math
+from shape import *
 
 def sutherland_mu(T, mu_ref=1.716e-5, T_ref=273.15, S=110.4):
     """
-    Sutherland's law for air (Pa·s).
-    Works with scalars or numpy arrays.
+    sutherland's law for air (Pa·s).
+    note that in order to replicate Rotta's result a linear viscosity
+    model is required. use of sutherland's will cause higher temperature
+    conditions (roughly above M12) to diverge from rotta, probably in a 
+    good way though. to replicate rotta, change the return line
     """
     T = np.asarray(T, dtype=float)
     return mu_ref * (T / T_ref)**1.5 * (T_ref + S) / (T + S)
+    #return mu_ref * (T / T_ref)
 
 def rasmussen(gamma, theta, M_inf):
+    """
+    rasmussens Cp correlation for cones. used to determine the cone surface
+    pressure for the isentropic expansion
+    """
     # expect theta in rad
     K = M_inf*theta 
 
@@ -25,13 +34,24 @@ def rasmussen(gamma, theta, M_inf):
     
     return cp
 
-def edge(M_inf, beta, p1, T1, p_cone, gamma=1.4, R=287.058):
+def modnewton(p02, p_inf, rho_inf, V_inf, theta):
+    """
+    modified newton Cp distribution. currently unused, but probably an 
+    improvement over rasmussen
+    """
+    cp_max = p02 - p_inf
+    cp_max /= 0.5*rho_inf*(V_inf)**2
+    a = cp_max[0]  
+    #a = cp_max
+    cp = a*(np.sin(theta)**2)
+    return cp
+    
+
+def edge(M_inf, beta, p1, T1, y_bar, theta, p_cone,gamma=1.4, R=287.058):
     """
     Vectorized oblique-shock post-shock properties and optional
     isentropic expansion to a specified cone surface pressure p_cone.
 
-    Parameters
-    ----------
     M_inf : float
         Freestream Mach number.
     beta : float or ndarray
@@ -47,13 +67,6 @@ def edge(M_inf, beta, p1, T1, p_cone, gamma=1.4, R=287.058):
         Ratio of specific heats.
     R : float
         Gas constant (J/kg/K).
-
-    Returns
-    -------
-    dict
-        Contains arrays for the post-shock state (suffix 2) and, if `p_cone` supplied,
-        the expanded cone-surface state (suffix 3). Also includes normalized viscous
-        parameter 'j2' (post-shock) and 'j3' (after expansion), and Mach numbers.
     """
     beta = np.asarray(beta, dtype=float)
 
@@ -112,9 +125,17 @@ def edge(M_inf, beta, p1, T1, p_cone, gamma=1.4, R=287.058):
     M2 = u2/a2
     j2 = ue * rhoe * mue
 
+    # determine the cone surface pressure
+
+    p02 = p2 * (1.0 + 0.5*(gamma - 1.0)*M2**2)**(gamma/(gamma - 1.0)) 
+    cp_surface = rasmussen(gamma, theta, M_inf)    
+    q = 0.5*rho1*(U1**2)
+    p3 = q*cp_surface + p1
+    
     # --- Isentropic expansion to cone surface pressure p_cone ---
     # allow p_cone to be scalar or array broadcastable with beta
-    p3 = np.broadcast_to(np.asarray(p_cone, dtype=float), shape)
+
+    #p3 = np.broadcast_to(np.asarray(p_cone, dtype=float), shape)
 
     # allocate outputs for expanded state
     rho3 = np.full(shape, np.nan, dtype=float)
@@ -134,7 +155,7 @@ def edge(M_inf, beta, p1, T1, p_cone, gamma=1.4, R=287.058):
     T2v   = T2
     u2v   = u2
     p3v   = p3
-
+    
     # isentropic relation: p / rho^gamma = const -> rho3 = rho2 * (p3/p2)^(1/gamma)
     rho3v = rho2v * (p3v / p2v)**(1.0 / gamma)
 
@@ -147,6 +168,7 @@ def edge(M_inf, beta, p1, T1, p_cone, gamma=1.4, R=287.058):
     # compute final velocity from energy conservation: u3 = sqrt(2*cp*(T0 - T3))
     # ensure non-negative argument for sqrt; if negative, set to zero (physical limit reached)
     deltaT = T0v - T3v
+
     u3v = np.sqrt(2.0 * cp * deltaT)
 
     # local sound speed and Mach number after expansion
@@ -155,9 +177,9 @@ def edge(M_inf, beta, p1, T1, p_cone, gamma=1.4, R=287.058):
 
     mu3v = sutherland_mu(T3v)
 
-    # j3 normalized viscous parameter analogous to j2
+    # j3 is j(y_bar) as used by rotta in the paper   
     j3v = (u3v / U1_arr) * (rho3v / rho1) * (mu3v / mu1)
-
+    
     # fill back into full arrays
     rho3 = rho3v
     T3   = T3v

@@ -15,9 +15,13 @@ def self_similar(beta,g_w):
 
     eta_max = 50.0
 
-    # solver tolerance 
+    # solver tolerance
+    # this is relatively influential as the parameter f (u/Ue) varies
+    # linearly with eta nearly the boundary layer edge, but the boundary 
+    # conditions to which this tolerance applies behave asymtotically
+    # for instance 1e-3 seems to replicate Rotta figures, but 1e-6 would not
 
-    eps_f = eps_g = 1e-6
+    eps_f = eps_g = 1e-3
 
     # boundary layer odes (simplified form of eqns [9] and [10]
     # from Lees paper). we need to express these equations as a 
@@ -80,12 +84,12 @@ def self_similar(beta,g_w):
     y_edge = sol.y_events[0][0]
     eta_edge = sol.t_events[0][0]
     
-    # output solution to text
-    np.savetxt(
-        "bl.txt",
-        np.column_stack((sol.t, sol.y[0], sol.y[1], sol.y[2], sol.y[3], sol.y[4])),
-        header="eta f fp fpp g gp",
-        comments=""
-        )
+    # uncomment to output solution to text
+    #np.savetxt(
+    #    "bl.txt",
+    #    np.column_stack((sol.t, sol.y[0], sol.y[1], sol.y[2], sol.y[3], sol.y[4])),
+    #    header="eta f fp fpp g gp",
+    #    comments=""
+    #    )
     return y_edge[0]
 
