@@ -56,7 +56,6 @@ beta, x_bar = shock_angle_from_y(y_bar, tb, cdt)
 j, Me = edge(M_inf, beta, p1, T1, y_bar,tb,p_cone)
 
 # Get f(eta_e) from the self similar model 
-# self_similar(beta,g(0),tolf,tolg)
 
 f = self_similar(b,0.0)
 
