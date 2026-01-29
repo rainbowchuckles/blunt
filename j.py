@@ -47,7 +47,7 @@ def modnewton(p02, p_inf, rho_inf, V_inf, theta):
     return cp
     
 
-def edge(M_inf, beta, p1, T1, y_bar, theta, p_cone,gamma=1.4, R=287.058):
+def edge(M_inf, beta, p1, T1, y_bar, theta, gamma=1.4, R=287.058):
     """
     Vectorized oblique-shock post-shock properties and optional
     isentropic expansion to a specified cone surface pressure p_cone.
@@ -189,5 +189,27 @@ def edge(M_inf, beta, p1, T1, y_bar, theta, p_cone,gamma=1.4, R=287.058):
     a3   = a3v
     M3   = M3v
 
-    return j3, M3 
+    p_surf = np.broadcast_to(np.asarray(p3, dtype=float), shape)
+    return j3, {
+        'rho': rho3,
+        'T'  : T3,
+        'u'  : u3,
+        'mu' : mu3,
+        'a'  : a3,
+        'M'  : M3,
+        'p'  : p_surf
+    }
 
+from scipy.interpolate import interp1d
+
+def interp_numeric_dict(data, x_key, x_value, kind='linear', fill_value='extrapolate'):
+    x = np.array(data[x_key], dtype=float)
+    out = {}
+    for k, v in data.items():
+        if k == x_key:
+            out[k] = x_value
+            continue
+        y = np.array(v, dtype=float)
+        f = interp1d(x, y, kind=kind, bounds_error=False, fill_value=fill_value)
+        out[k] = float(f(x_value))
+    return out

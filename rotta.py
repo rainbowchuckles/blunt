@@ -15,6 +15,7 @@ T1       = 266.15        # K
 b        = 0.90          # self similar boundary layer parameter
 R_gas    = 287           # Gas constant (assume air)
 r0       = 0.15          # Nose radius (m)
+s        = 0.10          # Dimensional s to interrogate (m)
 
 # shouldn't be any need to edit below this line
 # ---------------------------------------------
@@ -53,7 +54,7 @@ beta, x_bar = shock_angle_from_y(y_bar, tb, cdt)
 # Compute j(y_bar) by determining the post-shock conditions as a function of y_bar
 # and then expanding these to the inviscid cone surface pressure                
 
-j, Me = edge(M_inf, beta, p1, T1, y_bar,tb,p_cone)
+j, qe = edge(M_inf, beta, p1, T1, y_bar,tb)
 
 # Get f(eta_e) from the self similar model 
 
@@ -76,12 +77,27 @@ sr *= 1.5
 sr *= I
 sr  = sr**(1/3)
 
-# Output
+qe["S_bar"] = sr
+qe["S"]     = sr*r0
+
+# Output full result to text
 
 np.savetxt(
     "output.dat",
-    np.column_stack((sr, np.rad2deg(beta),Me)),
-    header="sr b Me",
+    np.column_stack((sr, qe.get("rho"),qe.get("T"),qe.get("u"), qe.get("mu"),qe.get("a"), qe.get("M"),qe.get("p"))),
+    header="S_bar, -                 rho, kg/m3                T, K                    u, m/s                   mu, Pa s                 a, m/s                   M, -                     p, Pa                  ",
     comments=""
 )
 
+# Print query of particular S location to terminal
+
+result = interp_numeric_dict(qe,"S",s)
+
+print(f"The properties at S = {result['S']:.3f} are:")
+print(f"rho  = {result['rho']:.2E} kg/m3")
+print(f"T    = {result['T']:.1f} K")
+print(f"u    = {result['u']:.1f} m/s")
+print(f"mu   = {result['mu']:.2E} Pa s")
+print(f"a    = {result['a']:.2f} m/s")
+print(f"M    = {result['M']:.2f}")
+print(f"p    = {result['p']:.1f} Pa")
