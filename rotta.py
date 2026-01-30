@@ -7,15 +7,15 @@ from shape import *
 
 # problem definition  
 
-M_inf    = 15.0          # freestream Mach bnumber
+M_inf    = 10.0          # freestream Mach bnumber
 gamma    = 1.4           # ratio of specific heats
-tb       = 20            # cone half angle (degrees)
+tb       = 10            # cone half angle (degrees)
 p1       = 137.9         # Pa
 T1       = 266.15        # K
-b        = 0.90          # self similar boundary layer parameter
-R_gas    = 287           # Gas constant (assume air)
-r0       = 0.15          # Nose radius (m)
-s        = 0.10          # Dimensional s to interrogate (m)
+b        = 0.90          # pressure ratio for self similar boundary layer model
+R_gas    = 287           # gas constant (assume air)
+r0       = 0.15          # nose radius (m)
+s        = 0.10          # dimensional s to interrogate (m)
 
 # shouldn't be any need to edit below this line
 # ---------------------------------------------
@@ -77,15 +77,15 @@ sr *= 1.5
 sr *= I
 sr  = sr**(1/3)
 
-qe["S_bar"] = sr
+qe["S_bar"] = sr*Re_inf**(1/3)
 qe["S"]     = sr*r0
 
 # Output full result to text
 
 np.savetxt(
     "output.dat",
-    np.column_stack((sr, qe.get("rho"),qe.get("T"),qe.get("u"), qe.get("mu"),qe.get("a"), qe.get("M"),qe.get("p"))),
-    header="S_bar, -                 rho, kg/m3                T, K                    u, m/s                   mu, Pa s                 a, m/s                   M, -                     p, Pa                  ",
+    np.column_stack((sr, qe["S_bar"], qe.get("rho"),qe.get("T"),qe.get("u"), qe.get("mu"),qe.get("a"), qe.get("M"),qe.get("p"))),
+    header="S_bar/Re^(1/3),-         Sr_bar, -                 rho, kg/m3                T, K                    u, m/s                   mu, Pa s                 a, m/s                   M, -                     p, Pa                  ",
     comments=""
 )
 

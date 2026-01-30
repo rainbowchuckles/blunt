@@ -21,7 +21,7 @@ def self_similar(beta,g_w):
     # conditions to which this tolerance applies behave asymtotically
     # for instance 1e-3 seems to replicate Rotta figures, but 1e-6 would not
 
-    eps_f = eps_g = 1e-3
+    eps_f = eps_g = 1e-4
 
     # boundary layer odes (simplified form of eqns [9] and [10]
     # from Lees paper). we need to express these equations as a 
