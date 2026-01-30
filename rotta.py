@@ -7,7 +7,7 @@ from shape import *
 
 # problem definition  
 
-M_inf    = 10.0          # freestream Mach bnumber
+M_inf    = 8.0          # freestream Mach bnumber
 gamma    = 1.4           # ratio of specific heats
 tb       = 10            # cone half angle (degrees)
 p1       = 137.9         # Pa
@@ -78,7 +78,7 @@ sr *= I
 sr  = sr**(1/3)
 
 qe["S_bar"] = sr*Re_inf**(1/3)
-qe["S"]     = sr*r0
+qe["S"]     = qe["S_bar"]*r0
 
 # Output full result to text
 
