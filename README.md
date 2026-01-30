@@ -7,9 +7,9 @@ Joseph Steer 28/01/2026
 
 This software was developed to solve equation 16 from: 
 
-Rotta NR. Effects of nose bluntness on the boundary layer characteristics of conical bodies at hypersonic speeds. 1966 Nov 1
+<em>Rotta NR. Effects of nose bluntness on the boundary layer characteristics of conical bodies at hypersonic speeds. 1966 Nov 1</em>
 
-Run the code by inputting the desired cone properties in rotta.py and then running the same file. j.py, f.py, and shape.py contain functions written to determine j(y_bar), f(eta_e), and the shock shape from the correlation given in the paper. A text file of outputs in then created containing the non-dimensional parameter s_bar and Me, the Mach number at the boundary layer edge.
+Run the code by inputting the desired cone properties in rotta.py and then running the same file. j.py, f.py, and shape.py contain functions written to determine j(y_bar), f(eta_e), and the shock shape from the correlation given in the paper. A text file of outputs is then created containing the non-dimensional parameter s_bar and Me, the Mach number at the boundary layer edge.
 
 Some comments on the implementation:
 - The result is sensitive to the solution tolerance allowed for f(eta_e). Rotta does not provide any detail about how he chose this, or indeed what pressure gradient parameter (beta) was used
